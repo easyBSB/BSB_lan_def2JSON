@@ -51,23 +51,23 @@ std::string n2hexstr(I w, size_t hex_len = sizeof(I) << 1)
     return rc;
 }
 
-std::map<int, std::string> readENUM(std::string enumstr)
+std::map<int, std::string> readENUM(std::string enum_str)
 {
 
-// ADD catalist from BSB_lan_EEPROMconfig.h to EXPORT
+    // ADD catalist from BSB_lan_EEPROMconfig.h to EXPORT
 
     std::map<int, std::string> result;
 
     int pos = 0;
-    int enumcount = 0;
+    int enum_count = 0;
 
-    while (pos < enumstr.length() - 2 && enumcount < 1000)
+    while (pos < enum_str.length() - 2 && enum_count < 1000)
     {
-        int space = enumstr.find(' ', pos + 1);
-        int end = enumstr.find('\0', space);
+        int space = enum_str.find(' ', pos + 1);
+        int end = enum_str.find('\0', space);
 
-        std::string keys = enumstr.substr(pos, space - pos);
-        std::string desc = enumstr.substr(space + 1, end - space - 1);
+        std::string keys = enum_str.substr(pos, space - pos);
+        std::string desc = enum_str.substr(space + 1, end - space - 1);
         int key = 0;
 
         char charBuf[1024];
@@ -77,7 +77,7 @@ std::map<int, std::string> readENUM(std::string enumstr)
         result.insert(std::make_pair(key, desc));
         pos = end + 1;
 
-        enumcount++;
+        enum_count++;
     }
 
     return result;
@@ -94,116 +94,117 @@ int main()
 #endif
 
     cout << "  \"commands\": {" << endl;
-    cmd_t *cmdtbl;
+    // cmd_t *cmdtbl;
 
-    int size1 = sizeof(cmdtbl1) / sizeof(cmdtbl1[0]);
-    int size2 = sizeof(cmdtbl2) / sizeof(cmdtbl1[0]);
-    int size3 = sizeof(cmdtbl3) / sizeof(cmdtbl1[0]);
+    // int size1 = sizeof(cmdtbl1) / sizeof(cmdtbl1[0]);
+    // int size2 = sizeof(cmdtbl2) / sizeof(cmdtbl1[0]);
+    // int size3 = sizeof(cmdtbl3) / sizeof(cmdtbl1[0]);
 
-    cmdtbl = new cmd_t[size1 + size2 + size3];
+    // cmdtbl = new cmd_t[size1 + size2 + size3];
 
-    std::copy(cmdtbl1, cmdtbl1 + size1, cmdtbl);
-    std::copy(cmdtbl2, cmdtbl2 + size2, cmdtbl + size1);
-    //  std::copy(cmdtbl3, cmdtbl3 + size3, cmdtbl + size2);
+    // std::copy(cmdtbl1, cmdtbl1 + size1, cmdtbl);
+    // std::copy(cmdtbl2, cmdtbl2 + size2, cmdtbl + size1);
+    //   std::copy(cmdtbl3, cmdtbl3 + size3, cmdtbl + size2);
 
-    std::string enumcat = std::string(ENUM_CAT, sizeof(ENUM_CAT));
-    std::map<int, std::string> categories = readENUM(enumcat);
+    std::string enum_cat = std::string(ENUM_CAT, sizeof(ENUM_CAT));
+    std::map<int, std::string> categories = readENUM(enum_cat);
 
-    int allSize = size1 + size2;
-
-    //  allSize = 50;
+    int allSize = sizeof(cmdtbl) / sizeof(cmd_t);
 
     for (int i = 0; i < allSize; i++)
     {
         cmd_t data = cmdtbl[i];
-
-        cout << "" << endl;
-        cout << "  \"" << std::to_string(i) << "\": {" << endl;
-#ifndef ONLYTEXT
-        cout << "  \"parameter\" : " << std::to_string(data.line) << "," << endl;
-        cout << "  \"command\" : \"0x" << n2hexstr(data.cmd) << "\"," << endl;
-#endif
-        cout << "  \"category\" : {" << endl;
-        cout << "    \"name\": {" << endl;
-        cout << "      \"" << LANGS "\": \"" << categories[data.category] << "\"" << endl;
-        cout << "    }";
-#ifndef ONLYTEXT
-        cout << "," << endl;
-        cout << "    \"min\" : " << std::to_string(ENUM_CAT_NR[data.category * 2]) << "," << endl;
-        cout << "    \"max\" : " << std::to_string(ENUM_CAT_NR[data.category * 2 + 1]) << "" << endl;
-#else
-        cout << endl;
-#endif
-        cout << "  }," << endl;
-
-        cout << "  \"type\" : {" << endl;
-        std::string unit = optbl[data.type].unit;
-        replace(unit, "&#037;", "%");
-        replace(unit, "&#181;", "µ");
-        replace(unit, "&deg;", "°");
-        cout << "    \"unit\" : {" << endl;
-        cout << "      \"" << LANGS "\": \"" << unit << "\"" << endl;
-        cout << "    }";
-#ifndef ONLYTEXT        
-        cout << "," << endl;
-        cout << "    \"name\" : \"" << optbl[data.type].type_text << "\"," << endl;
-        cout << "    \"datatype\" : \"" << dt_types_text[optbl[data.type].data_type].type_text << "\"," << endl;
-        cout << "    \"datatype_id\" : "  << to_string(optbl[data.type].data_type) << "," << endl;
-        cout << "    \"factor\" : " << optbl[data.type].operand << "," << endl;
-        cout << "    \"payload_length\" : " << std::to_string(optbl[data.type].payload_length) << "," << endl;
-        cout << "    \"precision\" : " << std::to_string(optbl[data.type].precision) << "," << endl;
-        cout << "    \"enable_byte\" : " << to_string((optbl[data.type].enable_byte)) << "" << endl;
-#else
-        cout << endl;
-#endif
-        cout << "  }," << endl;
-        cout << "  \"description\": {" << endl;
-        cout << "      \"" << LANGS "\": \"" << data.desc << "\"" << endl;
-        cout << "    }," << endl;
-
-        if (data.enumstr_len > 0 && data.enumstr != NULL)
+        if (data.line < 15000)
         {
-            cout << "  \"enum\" : {" << endl;
 
-            std::string enumstr = string(data.enumstr, data.enumstr_len);
-            std::map<int, std::string> enumData = readENUM(enumstr);
-
-            for (std::map<int, std::string>::iterator it = enumData.begin(); it != enumData.end(); ++it)
-            {
-                if (it != enumData.begin())
-                    cout << "," << endl;
-
-                // cout << "    \"0x" << n2hexstr(it->first, 4) << "\" : {" << endl;
-                cout << "    \"" << to_string(it->first) << "\" : {" << endl;
-                cout << "      \"" << LANGS "\": \"" << it->second << "\"" << endl;
-                cout << "    }";
-            }
-            cout << endl;
-
-            cout << "    }," << endl;
-        }
+            cout << "" << endl;
+            cout << "  \"" << std::to_string(i) << "\": {" << endl;
 #ifndef ONLYTEXT
-        cout << "  \"flags\" : [" << endl;
-        if ((data.flags & FL_RONLY) == FL_RONLY)
-            cout << "    \"READONLY\"," << endl;
-        if ((data.flags & FL_NO_CMD) == FL_NO_CMD)
-            cout << "    \"NO_CMD\"," << endl;
-        if ((data.flags & FL_OEM) == FL_OEM)
-            cout << "    \"OEM\"," << endl;
-        if ((data.flags & FL_SPECIAL_INF) == FL_SPECIAL_INF)
-            cout << "    \"SPECIAL_INF\"," << endl;
-        if ((data.flags & FL_SW_CTL_RONLY) == FL_SW_CTL_RONLY)
-            cout << "    \"SW_CTL_READONLY\"," << endl;
-        cout << "    \"\"" << endl;
-        cout << "  ]," << endl;
-        cout << "  \"device\" : [{" << endl;
-        cout << "    \"family\": " << std::to_string(data.dev_fam) << "," << endl;
-        cout << "    \"var\" : " << std::to_string(data.dev_var) << "" << endl;
-        cout << "  }]" << endl;
-#else
-        cout << "    \"dummy\" : 0" << endl;
+            cout << "  \"parameter\" : " << std::to_string(data.line) << "," << endl;
+            cout << "  \"command\" : \"0x" << n2hexstr(data.cmd) << "\"," << endl;
 #endif
-        cout << "  }," << endl;
+            cout << "  \"category\" : {" << endl;
+            cout << "    \"name\": {" << endl;
+            cout << "      \"" << LANGS "\": \"" << categories[data.category] << "\"" << endl;
+            cout << "    }";
+#ifndef ONLYTEXT
+            cout << "," << endl;
+            cout << "    \"min\" : " << std::to_string(ENUM_CAT_NR[data.category * 2]) << "," << endl;
+            cout << "    \"max\" : " << std::to_string(ENUM_CAT_NR[data.category * 2 + 1]) << "" << endl;
+#else
+            cout << endl;
+#endif
+            cout << "  }," << endl;
+
+            cout << "  \"type\" : {" << endl;
+            std::string unit = optbl[data.type].unit;
+            replace(unit, "&#037;", "%");
+            replace(unit, "&#181;", "µ");
+            replace(unit, "&deg;", "°");
+            cout << "    \"unit\" : {" << endl;
+            cout << "      \"" << LANGS "\": \"" << unit << "\"" << endl;
+            cout << "    }";
+#ifndef ONLYTEXT
+            cout << "," << endl;
+            cout << "    \"name\" : \"" << optbl[data.type].type_text << "\"," << endl;
+            cout << "    \"datatype\" : \"" << dt_types_text[optbl[data.type].data_type].type_text << "\"," << endl;
+            cout << "    \"datatype_id\" : " << to_string(optbl[data.type].data_type) << "," << endl;
+            cout << "    \"factor\" : " << optbl[data.type].operand << "," << endl;
+            cout << "    \"payload_length\" : " << std::to_string(optbl[data.type].payload_length) << "," << endl;
+            cout << "    \"precision\" : " << std::to_string(optbl[data.type].precision) << "," << endl;
+            cout << "    \"enable_byte\" : " << to_string((optbl[data.type].enable_byte)) << "" << endl;
+#else
+            cout << endl;
+#endif
+            cout << "  }," << endl;
+            cout << "  \"description\": {" << endl;
+            cout << "      \"" << LANGS "\": \"" << data.desc << "\"" << endl;
+            cout << "    }," << endl;
+
+            if (data.enumstr_len > 0 && data.enumstr != NULL)
+            {
+                cout << "  \"enum\" : {" << endl;
+
+                std::string enumstr = string(data.enumstr, data.enumstr_len);
+                std::map<int, std::string> enumData = readENUM(enumstr);
+
+                for (std::map<int, std::string>::iterator it = enumData.begin(); it != enumData.end(); ++it)
+                {
+                    if (it != enumData.begin())
+                        cout << "," << endl;
+
+                    // cout << "    \"0x" << n2hexstr(it->first, 4) << "\" : {" << endl;
+                    cout << "    \"" << to_string(it->first) << "\" : {" << endl;
+                    cout << "      \"" << LANGS "\": \"" << it->second << "\"" << endl;
+                    cout << "    }";
+                }
+                cout << endl;
+
+                cout << "    }," << endl;
+            }
+#ifndef ONLYTEXT
+            cout << "  \"flags\" : [" << endl;
+            if ((data.flags & FL_RONLY) == FL_RONLY)
+                cout << "    \"READONLY\"," << endl;
+            if ((data.flags & FL_NO_CMD) == FL_NO_CMD)
+                cout << "    \"NO_CMD\"," << endl;
+            if ((data.flags & FL_OEM) == FL_OEM)
+                cout << "    \"OEM\"," << endl;
+            if ((data.flags & FL_SPECIAL_INF) == FL_SPECIAL_INF)
+                cout << "    \"SPECIAL_INF\"," << endl;
+            if ((data.flags & FL_SW_CTL_RONLY) == FL_SW_CTL_RONLY)
+                cout << "    \"SW_CTL_READONLY\"," << endl;
+            cout << "    \"\"" << endl;
+            cout << "  ]," << endl;
+            cout << "  \"device\" : [{" << endl;
+            cout << "    \"family\": " << std::to_string(data.dev_fam) << "," << endl;
+            cout << "    \"var\" : " << std::to_string(data.dev_var) << "" << endl;
+            cout << "  }]" << endl;
+#else
+            cout << "    \"dummy\" : 0" << endl;
+#endif
+            cout << "  }," << endl;
+        }
     }
 
     cout << "  \"END\" : {} }" << endl;

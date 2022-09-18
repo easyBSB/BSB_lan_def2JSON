@@ -1,0 +1,14 @@
+{
+    "version": "0.2",
+    "language": "en,de-de",
+    "words": [
+        "cmdtbl",
+        "Compiletime",
+        "enumstr",
+        "hexstr",
+        "LANGSTR",
+        "ONLYTEXT",
+        "optbl",
+        "PROGMEM"
+    ]
+}
